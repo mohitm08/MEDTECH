@@ -120,13 +120,49 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
     }
   }, [selectedDate, refreshKey, token]);
 
-  const toggleReminderStatus = (id) => {
+  const toggleReminderStatus = async (id) => {
+    const reminder = reminders.find(r => r._id === id);
+    if (!reminder) return;
+
+    const newStatus = reminder.status === 'taken' ? 'pending' : 'taken';
+
+    // Optimistically update local UI state
     setReminders(prev => prev.map(item => {
       if (item._id === id) {
-        return { ...item, status: item.status === 'taken' ? 'pending' : 'taken' };
+        return { ...item, status: newStatus };
       }
       return item;
     }));
+
+    // Check if it is a real MongoDB ID. Local manual/mock entries do not sync with backend.
+    const isMongoDBId = /^[0-9a-fA-F]{24}$/.test(id);
+    if (!isMongoDBId || !token) return;
+
+    try {
+      const response = await fetch(`${API_URL}/api/reminders/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Failed to update reminder status');
+      }
+    } catch (err) {
+      console.error('Error syncing reminder status:', err);
+      // Revert local state if API request fails
+      setReminders(prev => prev.map(item => {
+        if (item._id === id) {
+          return { ...item, status: reminder.status };
+        }
+        return item;
+      }));
+      Alert.alert('Sync Error', 'Failed to update reminder status on server.');
+    }
   };
 
   const handleOpenAddModal = () => {
