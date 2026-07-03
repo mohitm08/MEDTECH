@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Check, Clock, AlertTriangle, HelpCircle, ChevronLeft, ChevronRight, Award } from 'lucide-react';
+import { API_URL } from '../config';
 
 const MedicationTimeline = ({ refreshKey, token }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -27,7 +28,7 @@ const MedicationTimeline = ({ refreshKey, token }) => {
     setLoading(true);
     const dateStr = selectedDate.toISOString().split('T')[0];
     try {
-      const response = await fetch(`http://localhost:5000/api/reminders?date=${dateStr}`, {
+      const response = await fetch(`${API_URL}/api/reminders?date=${dateStr}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) {
@@ -93,7 +94,7 @@ const MedicationTimeline = ({ refreshKey, token }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/reminders/${id}/status`, {
+      const response = await fetch(`${API_URL}/api/reminders/${id}/status`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',

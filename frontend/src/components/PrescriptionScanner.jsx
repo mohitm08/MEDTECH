@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Camera, RefreshCw, X, ShieldAlert } from 'lucide-react';
+import { API_URL } from '../config';
 
 const PrescriptionScanner = ({ onScanComplete, token }) => {
   const [image, setImage] = useState(null);
@@ -120,7 +121,7 @@ const PrescriptionScanner = ({ onScanComplete, token }) => {
       const formData = new FormData();
       formData.append('image', image);
 
-      const response = await fetch('http://localhost:5000/api/prescriptions/upload', {
+      const response = await fetch(`${API_URL}/api/prescriptions/upload`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData

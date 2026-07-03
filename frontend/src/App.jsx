@@ -15,6 +15,7 @@ import PrescriptionScanner from './components/PrescriptionScanner';
 import PrescriptionReview from './components/PrescriptionReview';
 import MedicationTimeline from './components/MedicationTimeline';
 import ReminderSystem from './components/ReminderSystem';
+import { API_URL } from './config';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -44,7 +45,7 @@ function App() {
   const fetchDashboardStats = async () => {
     if (!token) return;
     try {
-      const statsRes = await fetch('http://localhost:5000/api/reminders/summary', {
+      const statsRes = await fetch(`${API_URL}/api/reminders/summary`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (statsRes.ok) {
@@ -52,7 +53,7 @@ function App() {
         setStats(statsData);
       }
 
-      const rxRes = await fetch('http://localhost:5000/api/prescriptions', {
+      const rxRes = await fetch(`${API_URL}/api/prescriptions`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (rxRes.ok) {
@@ -96,7 +97,7 @@ function App() {
       : { name: authName, email: authEmail, password: authPassword };
 
     try {
-      const res = await fetch(`http://localhost:5000/api/auth/${endpoint}`, {
+      const res = await fetch(`${API_URL}/api/auth/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -413,7 +414,7 @@ function App() {
                     </div>
 
                     <img 
-                      src={`http://localhost:5000${rx.imageUrl}`} 
+                      src={`${API_URL}${rx.imageUrl}`} 
                       alt="Scanned prescription" 
                       className="history-image-thumb" 
                     />

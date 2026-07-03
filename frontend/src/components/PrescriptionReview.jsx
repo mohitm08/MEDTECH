@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Save, Plus, Trash2, Calendar, Clock, User, AlertCircle } from 'lucide-react';
+import { API_URL } from '../config';
 
 const PrescriptionReview = ({ scanResult, onSaveComplete, onCancel, token }) => {
   const { imageUrl, extractedData } = scanResult;
@@ -69,7 +70,7 @@ const PrescriptionReview = ({ scanResult, onSaveComplete, onCancel, token }) => 
 
     setIsSaving(true);
     try {
-      const response = await fetch('http://localhost:5000/api/prescriptions/save', {
+      const response = await fetch(`${API_URL}/api/prescriptions/save`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -104,7 +105,7 @@ const PrescriptionReview = ({ scanResult, onSaveComplete, onCancel, token }) => 
           Original Prescription Upload
         </h3>
         <div className="preview-image-box">
-          <img src={`http://localhost:5000${imageUrl}`} alt="Prescription" />
+          <img src={`${API_URL}${imageUrl}`} alt="Prescription" />
         </div>
         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
           Refer to the original prescription image if you need to double-check any handwriting.

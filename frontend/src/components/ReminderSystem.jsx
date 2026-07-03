@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Bell, BellOff } from 'lucide-react';
+import { API_URL } from '../config';
 
 const ReminderSystem = ({ onReminderTriggered, token }) => {
   const [notificationPermission, setNotificationPermission] = useState('default');
@@ -57,7 +58,7 @@ const ReminderSystem = ({ onReminderTriggered, token }) => {
     if (!token) return;
     const todayStr = new Date().toISOString().split('T')[0];
     try {
-      const response = await fetch(`http://localhost:5000/api/reminders?date=${todayStr}`, {
+      const response = await fetch(`${API_URL}/api/reminders?date=${todayStr}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) return;
