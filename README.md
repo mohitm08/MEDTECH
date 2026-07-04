@@ -13,6 +13,16 @@ The ecosystem comprises a robust **Node.js/Express REST API**, a beautiful **Rea
 
 ---
 
+## 🔗 Deployed Live Links
+
+To explore the running Medtech AI system:
+
+* 🌐 **Live Web Portal:** [https://medtech-mohit08.vercel.app](https://medtech-mohit08.vercel.app)
+* ⚙️ **Production REST API:** [https://medtech-backend-pqzz.onrender.com](https://medtech-backend-pqzz.onrender.com) (Health Check: [https://medtech-backend-pqzz.onrender.com/](https://medtech-backend-pqzz.onrender.com/))
+* 📱 **Android Client (.APK):** You can download the compiled installer file from our [GitHub Releases](https://github.com/mohitm08/MEDTECH/releases) page to run the mobile app directly on your physical Android phone.
+
+---
+
 ## 🌟 Key Features
 
 * **AI-Powered Prescription OCR**: Take a photo of any prescription and let Google's Gemini-2.5-Flash model instantly extract the patient's name, medicine names, dosages, frequencies, and durations.
