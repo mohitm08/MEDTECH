@@ -16,6 +16,9 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
+      "permissions": [
+        "SCHEDULE_EXACT_ALARM"
+      ],
       "package": "com.mohit_m08.mobile"
     },
     "web": {
@@ -27,7 +30,8 @@
       }
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-notifications"
     ]
   }
 }
