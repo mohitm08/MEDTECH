@@ -171,3 +171,33 @@ export const deleteReminder = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+/**
+ * Create a manual reminder directly without a prescription
+ * POST /api/reminders
+ */
+export const createManualReminder = async (req, res) => {
+  try {
+    const { medicineName, dosage, time, instructions, scheduledDate } = req.body;
+
+    if (!medicineName || !dosage || !time) {
+      return res.status(400).json({ message: 'Medicine name, dosage, and time are required.' });
+    }
+
+    const newReminder = new Reminder({
+      userId: req.user._id,
+      medicineName,
+      dosage,
+      time,
+      instructions: instructions || '',
+      scheduledDate: scheduledDate || new Date(),
+      status: 'pending'
+    });
+
+    const savedReminder = await newReminder.save();
+    res.status(201).json(savedReminder);
+  } catch (error) {
+    console.error('Error creating manual reminder:', error);
+    res.status(500).json({ message: error.message });
+  }
+};

@@ -4,7 +4,7 @@ const reminderSchema = new mongoose.Schema({
   prescriptionId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Prescription',
-    required: true
+    required: false
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,

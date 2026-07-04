@@ -173,23 +173,42 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
     setIsModalVisible(true);
   };
 
-  const handleSaveMedication = () => {
+  const handleSaveMedication = async () => {
     if (!medName.trim()) {
       Alert.alert("Missing Field", "Please enter a valid Medicine Name.");
       return;
     }
 
-    const newReminder = {
-      _id: Math.random().toString(36).substring(7),
-      medicineName: medName.trim(),
-      dosage: dosage.trim() || 'As Directed',
-      time: medTime.trim() || 'General',
-      instructions: instructions.trim() || 'No special requirements',
-      status: 'pending'
-    };
+    try {
+      const targetDate = selectedDate || new Date();
 
-    setReminders(prev => [...prev, newReminder]);
-    setIsModalVisible(false);
+      const response = await fetch(`${API_URL}/api/reminders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          medicineName: medName.trim(),
+          dosage: dosage.trim() || 'As Directed',
+          time: medTime.trim() || '09:00',
+          instructions: instructions.trim() || 'No special requirements',
+          scheduledDate: targetDate.toISOString()
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Failed to save medication');
+      }
+
+      const savedReminder = await response.json();
+      setReminders(prev => [...prev, savedReminder]);
+      setIsModalVisible(false);
+    } catch (err) {
+      console.error('Error saving manual schedule:', err);
+      Alert.alert('Save Failed', err.message || 'Could not connect to server.');
+    }
   };
 
   const handleDeleteMedication = (id, name) => {
