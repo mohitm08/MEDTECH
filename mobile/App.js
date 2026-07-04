@@ -288,16 +288,7 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#090D16" />
       
-      {/* Top Header Bar */}
-      <View style={styles.header}>
-        <Text style={styles.headerLogo}>MEDTECH AI</Text>
-        <Text style={styles.headerSubtitle}>
-          {currentTab === 'Dashboard' && 'Adherence Schedule'}
-          {currentTab === 'Scan' && 'OCR Prescription'}
-          {currentTab === 'Review' && 'Verification Check'}
-          {currentTab === 'History' && 'Prescription Archives'}
-        </Text>
-      </View>
+
 
       {/* Main Screen Panel View */}
       <View style={styles.screenBody}>
@@ -363,27 +354,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#090D16',
   },
-  header: {
-    backgroundColor: '#111726',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerLogo: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#10B981',
-    letterSpacing: 0.5,
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#9CA3AF',
-  },
+
   screenBody: {
     flex: 1,
   },

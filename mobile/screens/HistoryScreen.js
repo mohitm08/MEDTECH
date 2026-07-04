@@ -6,7 +6,9 @@ import {
   ScrollView, 
   Image, 
   ActivityIndicator, 
-  RefreshControl 
+  RefreshControl,
+  Platform,
+  StatusBar 
 } from 'react-native';
 import { API_URL } from '../config';
 
@@ -103,7 +105,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#090D16',
     padding: 16,
-    paddingTop: 10,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 10,
   },
   title: {
     fontSize: 20,

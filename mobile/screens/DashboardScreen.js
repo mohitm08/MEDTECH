@@ -592,6 +592,7 @@ const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
     backgroundColor: THEME.bg,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 8 : 0,
   },
   scrollLayoutContent: {
     paddingHorizontal: 20,

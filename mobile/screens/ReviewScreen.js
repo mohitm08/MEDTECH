@@ -8,7 +8,8 @@ import {
   TouchableOpacity, 
   KeyboardAvoidingView, 
   Platform, 
-  Alert 
+  Alert,
+  StatusBar 
 } from 'react-native';
 import { API_URL } from '../config';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -281,6 +282,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#090D16',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 0,
   },
   scroll: {
     padding: 16,

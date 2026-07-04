@@ -6,7 +6,9 @@ import {
   Image, 
   TouchableOpacity, 
   ActivityIndicator, 
-  Alert 
+  Alert,
+  Platform,
+  StatusBar
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { API_URL } from '../config';
@@ -162,6 +164,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#090D16',
     padding: 20,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 20,
     justifyContent: 'center',
   },
   title: {
