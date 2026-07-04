@@ -13,6 +13,7 @@ import {
   Alert
 } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import * as SecureStore from 'expo-secure-store';
 import { API_URL } from './config';
 import DashboardScreen from './screens/DashboardScreen';
 import ScannerScreen from './screens/ScannerScreen';
@@ -36,6 +37,7 @@ export default function App() {
   // Auth States
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -51,6 +53,25 @@ export default function App() {
       }
     }
     requestPermissions();
+  }, []);
+
+  // Restore persistent authentication token on startup
+  useEffect(() => {
+    async function restoreSession() {
+      try {
+        const savedToken = await SecureStore.getItemAsync('token');
+        const savedUser = await SecureStore.getItemAsync('user');
+        if (savedToken && savedUser) {
+          setToken(savedToken);
+          setUser(JSON.parse(savedUser));
+        }
+      } catch (err) {
+        console.error('Failed to restore session:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    restoreSession();
   }, []);
 
   const handleAuthSubmit = async () => {
@@ -75,6 +96,8 @@ export default function App() {
       if (!res.ok) {
         throw new Error(data.message || 'Authentication failed.');
       }
+      await SecureStore.setItemAsync('token', data.token);
+      await SecureStore.setItemAsync('user', JSON.stringify(data.user));
       setToken(data.token);
       setUser(data.user);
       setRefreshKey(prev => prev + 1);
@@ -84,7 +107,13 @@ export default function App() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await SecureStore.deleteItemAsync('token');
+      await SecureStore.deleteItemAsync('user');
+    } catch (err) {
+      console.error('Error clearing secure storage:', err);
+    }
     setToken(null);
     setUser(null);
     setCurrentTab('Dashboard');
@@ -157,6 +186,15 @@ export default function App() {
       console.error('Error scheduling local notifications:', err);
     }
   };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <StatusBar barStyle="light-content" backgroundColor="#090D16" />
+        <Text style={{ color: '#ffffff', fontSize: 16 }}>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
 
   if (!token) {
     return (
