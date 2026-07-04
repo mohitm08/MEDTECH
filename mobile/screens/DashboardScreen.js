@@ -122,6 +122,7 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
             },
             trigger: {
               date: triggerDate,
+              channelId: 'default',
             },
           });
         }

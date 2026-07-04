@@ -44,15 +44,24 @@ export default function App() {
   const [name, setName] = useState('');
   const [authError, setAuthError] = useState('');
 
-  // Request native notifications permissions on launch
+  // Request native notifications permissions on launch and setup Android channel
   useEffect(() => {
-    async function requestPermissions() {
+    async function setupNotifications() {
       const { status } = await Notifications.requestPermissionsAsync();
       if (status !== 'granted') {
         console.warn('Native notification permissions not granted!');
       }
+
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'Default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#1A44A0',
+        });
+      }
     }
-    requestPermissions();
+    setupNotifications();
   }, []);
 
   // Restore persistent authentication token on startup
@@ -175,6 +184,7 @@ export default function App() {
                 },
                 trigger: {
                   date: triggerDate,
+                  channelId: 'default',
                 },
               });
             }
