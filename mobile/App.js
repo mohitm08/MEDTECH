@@ -183,6 +183,7 @@ export default function App() {
                   priority: Notifications.AndroidNotificationPriority.MAX,
                 },
                 trigger: {
+                  type: Notifications.SchedulableTriggerInputTypes.DATE,
                   date: triggerDate,
                   channelId: 'default',
                 },

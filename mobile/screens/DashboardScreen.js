@@ -121,6 +121,7 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
               priority: Notifications.AndroidNotificationPriority.MAX,
             },
             trigger: {
+              type: Notifications.SchedulableTriggerInputTypes.DATE,
               date: triggerDate,
               channelId: 'default',
             },
