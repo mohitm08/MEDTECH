@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { API_URL } from '../config';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Notifications from 'expo-notifications';
 
 // Premium Light Healthcare Palette
 const THEME = {
@@ -96,6 +97,41 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
 
   const calendarDays = getCalendarDays();
 
+  const scheduleNotificationsForList = async (remindersList) => {
+    try {
+      const now = new Date();
+      for (const item of remindersList) {
+        if (item.status !== 'pending') continue;
+
+        // Parse scheduledDate and time
+        const baseDate = new Date(item.scheduledDate);
+        const [hours, minutes] = item.time.split(':').map(Number);
+        
+        const triggerDate = new Date(baseDate);
+        triggerDate.setHours(hours, minutes, 0, 0);
+
+        // Only schedule if the alarm time is in the future
+        if (triggerDate > now) {
+          await Notifications.scheduleNotificationAsync({
+            identifier: item._id, // prevents duplicates
+            content: {
+              title: `Medication Alert: ${item.medicineName}`,
+              body: `${item.dosage} • ${item.instructions || 'Take now'}`,
+              sound: true,
+              priority: Notifications.AndroidNotificationPriority.MAX,
+            },
+            trigger: {
+              date: triggerDate,
+            },
+          });
+        }
+      }
+      console.log('Successfully updated local notification alarms for the fetched list!');
+    } catch (err) {
+      console.error('Error scheduling local notifications for list:', err);
+    }
+  };
+
   const fetchReminders = async () => {
     if (!token) return;
     setLoading(true);
@@ -107,6 +143,7 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
       if (!response.ok) throw new Error();
       const data = await response.json();
       setReminders(data || []);
+      await scheduleNotificationsForList(data || []);
     } catch (err) {
       setReminders(DEFAULT_MEDS);
     } finally {
@@ -204,6 +241,7 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
 
       const savedReminder = await response.json();
       setReminders(prev => [...prev, savedReminder]);
+      await scheduleNotificationsForList([savedReminder]);
       setIsModalVisible(false);
     } catch (err) {
       console.error('Error saving manual schedule:', err);
