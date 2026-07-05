@@ -53,11 +53,14 @@ export default function App() {
       }
 
       if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('default', {
-          name: 'Default',
+        await Notifications.setNotificationChannelAsync('medtech-reminders', {
+          name: 'Medication Reminders',
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 250, 250, 250],
           lightColor: '#1A44A0',
+          enableLights: true,
+          enableVibration: true,
+          showBadge: true,
         });
       }
     }
@@ -152,6 +155,18 @@ export default function App() {
   // Schedule native OS alerts for future days
   const scheduleLocalReminders = async (extractedData) => {
     try {
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('medtech-reminders', {
+          name: 'Medication Reminders',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#1A44A0',
+          enableLights: true,
+          enableVibration: true,
+          showBadge: true,
+        });
+      }
+
       // Clear previously scheduled notifications to avoid double alerts
       await Notifications.cancelAllScheduledNotificationsAsync();
       
@@ -185,7 +200,7 @@ export default function App() {
                 trigger: {
                   type: Notifications.SchedulableTriggerInputTypes.DATE,
                   date: triggerDate,
-                  channelId: 'default',
+                  channelId: 'medtech-reminders',
                 },
               });
             }

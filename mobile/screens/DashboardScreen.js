@@ -99,6 +99,21 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
 
   const scheduleNotificationsForList = async (remindersList) => {
     try {
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('medtech-reminders', {
+          name: 'Medication Reminders',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#1A44A0',
+          enableLights: true,
+          enableVibration: true,
+          showBadge: true,
+        });
+      }
+
+      // Clear all scheduled notifications first to remove deleted or completed alarms
+      await Notifications.cancelAllScheduledNotificationsAsync();
+
       const now = new Date();
       for (const item of remindersList) {
         if (item.status !== 'pending') continue;
@@ -123,7 +138,7 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
             trigger: {
               type: Notifications.SchedulableTriggerInputTypes.DATE,
               date: triggerDate,
-              channelId: 'default',
+              channelId: 'medtech-reminders',
             },
           });
         }
