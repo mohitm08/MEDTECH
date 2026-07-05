@@ -143,7 +143,7 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
 
       if (triggerDate > now) {
         await Notifications.scheduleNotificationAsync({
-          identifier: item._id, // prevents duplicates
+          identifier: String(item._id), // prevents duplicates
           content: {
             title: `Medication Alert: ${item.medicineName}`,
             body: `${item.dosage} • ${item.instructions || 'Take now'}`,
@@ -152,7 +152,7 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
           },
           trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,
-            date: triggerDate,
+            date: triggerDate.getTime(), // pass as millisecond timestamp
             channelId: 'medtech-reminders',
           },
         });

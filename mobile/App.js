@@ -199,7 +199,7 @@ export default function App() {
                 },
                 trigger: {
                   type: Notifications.SchedulableTriggerInputTypes.DATE,
-                  date: triggerDate,
+                  date: triggerDate.getTime(), // pass as millisecond timestamp
                   channelId: 'medtech-reminders',
                 },
               });
