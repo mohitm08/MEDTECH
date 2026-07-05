@@ -134,6 +134,32 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
     }
   };
 
+  const syncNotificationsForWeek = async () => {
+    if (!token) return;
+    try {
+      const startDate = new Date();
+      startDate.setHours(0, 0, 0, 0);
+      
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 7);
+      endDate.setHours(23, 59, 59, 999);
+
+      const response = await fetch(
+        `${API_URL}/api/reminders?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        await scheduleNotificationsForList(data || []);
+      }
+    } catch (err) {
+      console.error('Error syncing notifications for week:', err);
+    }
+  };
+
   const fetchReminders = async () => {
     if (!token) return;
     setLoading(true);
@@ -145,7 +171,7 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
       if (!response.ok) throw new Error();
       const data = await response.json();
       setReminders(data || []);
-      await scheduleNotificationsForList(data || []);
+      syncNotificationsForWeek();
     } catch (err) {
       setReminders(DEFAULT_MEDS);
     } finally {
@@ -191,6 +217,7 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
         const errData = await response.json();
         throw new Error(errData.message || 'Failed to update reminder status');
       }
+      syncNotificationsForWeek();
     } catch (err) {
       console.error('Error syncing reminder status:', err);
       // Revert local state if API request fails
@@ -243,7 +270,7 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
 
       const savedReminder = await response.json();
       setReminders(prev => [...prev, savedReminder]);
-      await scheduleNotificationsForList([savedReminder]);
+      syncNotificationsForWeek();
       setIsModalVisible(false);
     } catch (err) {
       console.error('Error saving manual schedule:', err);
@@ -270,7 +297,8 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
                 const errData = await response.json();
                 throw new Error(errData.message || 'Failed to delete reminder');
               }
-              setReminders(prev => prev.filter(item => item._id !== id));
+               setReminders(prev => prev.filter(item => item._id !== id));
+               syncNotificationsForWeek();
             } catch (err) {
               console.error(err);
               Alert.alert('Delete Failed', err.message);

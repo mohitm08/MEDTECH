@@ -48,28 +48,36 @@ export const generateRemindersForPrescription = async (prescription, startDate) 
  */
 export const getRemindersByDate = async (req, res) => {
   try {
-    const { date } = req.query;
+    const { date, startDate, endDate } = req.query;
     
-    // Parse target date
-    let targetDate = new Date();
-    if (date) {
-      targetDate = new Date(date);
-    }
+    let filter = { userId: req.user._id };
     
-    // Set bounds for the start and end of that specific day
-    const startOfDay = new Date(targetDate);
-    startOfDay.setHours(0, 0, 0, 0);
-    
-    const endOfDay = new Date(targetDate);
-    endOfDay.setHours(23, 59, 59, 999);
+    if (startDate && endDate) {
+      filter.scheduledDate = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    } else {
+      // Parse target date
+      let targetDate = new Date();
+      if (date) {
+        targetDate = new Date(date);
+      }
+      
+      // Set bounds for the start and end of that specific day
+      const startOfDay = new Date(targetDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      
+      const endOfDay = new Date(targetDate);
+      endOfDay.setHours(23, 59, 59, 999);
 
-    const reminders = await Reminder.find({
-      userId: req.user._id,
-      scheduledDate: {
+      filter.scheduledDate = {
         $gte: startOfDay,
         $lte: endOfDay
-      }
-    }).sort({ time: 1 });
+      };
+    }
+
+    const reminders = await Reminder.find(filter).sort({ scheduledDate: 1, time: 1 });
 
     res.status(200).json(reminders);
   } catch (error) {
