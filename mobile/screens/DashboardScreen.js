@@ -97,6 +97,71 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
 
   const calendarDays = getCalendarDays();
 
+  const scheduleSingleNotification = async (item) => {
+    try {
+      if (item.status !== 'pending') return;
+
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('medtech-reminders', {
+          name: 'Medication Reminders',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#1A44A0',
+          enableLights: true,
+          enableVibration: true,
+          showBadge: true,
+        });
+      }
+
+      const now = new Date();
+      const baseDate = new Date(item.scheduledDate);
+      
+      if (!item.time) return;
+      let [hoursStr, minutesStr] = item.time.split(':');
+      let hours = parseInt(hoursStr, 10);
+      let minutes = parseInt(minutesStr, 10);
+      
+      // Handle AM/PM suffix safely
+      if (item.time.toUpperCase().includes('PM') && hours !== 12) {
+        hours += 12;
+      } else if (item.time.toUpperCase().includes('AM') && hours === 12) {
+        hours = 0;
+      }
+      
+      if (isNaN(minutes)) {
+        const cleanMinutes = item.time.match(/:(\d+)/);
+        minutes = cleanMinutes ? parseInt(cleanMinutes[1], 10) : 0;
+      }
+
+      if (isNaN(hours) || isNaN(minutes)) {
+        console.warn('Invalid time format for reminder:', item.time);
+        return;
+      }
+
+      const triggerDate = new Date(baseDate);
+      triggerDate.setHours(hours, minutes, 0, 0);
+
+      if (triggerDate > now) {
+        await Notifications.scheduleNotificationAsync({
+          identifier: item._id, // prevents duplicates
+          content: {
+            title: `Medication Alert: ${item.medicineName}`,
+            body: `${item.dosage} • ${item.instructions || 'Take now'}`,
+            sound: true,
+            priority: Notifications.AndroidNotificationPriority.MAX,
+          },
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DATE,
+            date: triggerDate,
+            channelId: 'medtech-reminders',
+          },
+        });
+      }
+    } catch (err) {
+      console.error('Error scheduling single notification:', err);
+    }
+  };
+
   const scheduleNotificationsForList = async (remindersList) => {
     try {
       if (Platform.OS === 'android') {
@@ -114,34 +179,8 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
       // Clear all scheduled notifications first to remove deleted or completed alarms
       await Notifications.cancelAllScheduledNotificationsAsync();
 
-      const now = new Date();
       for (const item of remindersList) {
-        if (item.status !== 'pending') continue;
-
-        // Parse scheduledDate and time
-        const baseDate = new Date(item.scheduledDate);
-        const [hours, minutes] = item.time.split(':').map(Number);
-        
-        const triggerDate = new Date(baseDate);
-        triggerDate.setHours(hours, minutes, 0, 0);
-
-        // Only schedule if the alarm time is in the future
-        if (triggerDate > now) {
-          await Notifications.scheduleNotificationAsync({
-            identifier: item._id, // prevents duplicates
-            content: {
-              title: `Medication Alert: ${item.medicineName}`,
-              body: `${item.dosage} • ${item.instructions || 'Take now'}`,
-              sound: true,
-              priority: Notifications.AndroidNotificationPriority.MAX,
-            },
-            trigger: {
-              type: Notifications.SchedulableTriggerInputTypes.DATE,
-              date: triggerDate,
-              channelId: 'medtech-reminders',
-            },
-          });
-        }
+        await scheduleSingleNotification(item);
       }
       console.log('Successfully updated local notification alarms for the fetched list!');
     } catch (err) {
@@ -214,6 +253,13 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
       return item;
     }));
 
+    // Update local alarm instantly
+    if (newStatus === 'taken') {
+      await Notifications.cancelScheduledNotificationAsync(id).catch(() => {});
+    } else {
+      await scheduleSingleNotification({ ...reminder, status: 'pending' });
+    }
+
     // Check if it is a real MongoDB ID. Local manual/mock entries do not sync with backend.
     const isMongoDBId = /^[0-9a-fA-F]{24}$/.test(id);
     if (!isMongoDBId || !token) return;
@@ -232,7 +278,6 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
         const errData = await response.json();
         throw new Error(errData.message || 'Failed to update reminder status');
       }
-      syncNotificationsForWeek();
     } catch (err) {
       console.error('Error syncing reminder status:', err);
       // Revert local state if API request fails
@@ -242,6 +287,14 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
         }
         return item;
       }));
+
+      // Revert local alarm
+      if (reminder.status === 'taken') {
+        await Notifications.cancelScheduledNotificationAsync(id).catch(() => {});
+      } else {
+        await scheduleSingleNotification(reminder);
+      }
+
       Alert.alert('Sync Error', 'Failed to update reminder status on server.');
     }
   };
@@ -285,7 +338,7 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
 
       const savedReminder = await response.json();
       setReminders(prev => [...prev, savedReminder]);
-      syncNotificationsForWeek();
+      await scheduleSingleNotification(savedReminder);
       setIsModalVisible(false);
     } catch (err) {
       console.error('Error saving manual schedule:', err);
@@ -312,8 +365,8 @@ export default function DashboardScreen({ refreshKey, token, user, onLogout }) {
                 const errData = await response.json();
                 throw new Error(errData.message || 'Failed to delete reminder');
               }
-               setReminders(prev => prev.filter(item => item._id !== id));
-               syncNotificationsForWeek();
+                setReminders(prev => prev.filter(item => item._id !== id));
+                await Notifications.cancelScheduledNotificationAsync(id).catch(() => {});
             } catch (err) {
               console.error(err);
               Alert.alert('Delete Failed', err.message);
