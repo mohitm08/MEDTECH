@@ -1,15 +1,14 @@
 # 🏥 Medtech AI: Intelligent Prescription Scanner & Medication Reminder
 
 [![Node.js](https://img.shields.io/badge/Node.js-v18%2B-green.svg)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-v19.0-blue.svg)](https://react.dev/)
 [![React Native](https://img.shields.io/badge/React%20Native-Expo-black.svg)](https://reactnative.dev/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Database-brightgreen.svg)](https://www.mongodb.com/)
 [![Gemini](https://img.shields.io/badge/Google%20Gemini-AI%20OCR-blueviolet.svg)](https://ai.google.dev/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An intelligent, full-stack healthcare ecosystem designed to automate and simplify medication compliance. Medtech AI uses Google's state-of-the-art **Gemini 2.5 Flash** model to perform high-accuracy Optical Character Recognition (OCR) and structured data extraction from handwritten or printed prescription images.
+An intelligent healthcare application designed to automate and simplify medication compliance. Medtech AI uses Google's state-of-the-art **Gemini 2.5 Flash** model to perform high-accuracy Optical Character Recognition (OCR) and structured data extraction from handwritten or printed prescription images.
 
-The ecosystem comprises a robust **Node.js/Express REST API**, a beautiful **React (Vite) Web Portal**, and an **Expo-powered React Native Mobile App** featuring local native push notifications.
+The system comprises a robust **Node.js/Express REST API** and an **Expo-powered React Native Mobile App** featuring local native push notifications.
 
 ---
 
@@ -17,7 +16,6 @@ The ecosystem comprises a robust **Node.js/Express REST API**, a beautiful **Rea
 
 To explore the running Medtech AI system:
 
-* 🌐 **Live Web Portal:** [https://medtech-mohit08.vercel.app](https://medtech-mohit08.vercel.app)
 * ⚙️ **Production REST API:** [https://medtech-backend-pqzz.onrender.com](https://medtech-backend-pqzz.onrender.com) (Health Check: [https://medtech-backend-pqzz.onrender.com/](https://medtech-backend-pqzz.onrender.com/))
 * 📱 **Android Client (.APK):** You can download the compiled installer file from our [GitHub Releases](https://github.com/mohitm08/MEDTECH/releases) page to run the mobile app directly on your physical Android phone.
 
@@ -27,7 +25,6 @@ To explore the running Medtech AI system:
 
 * **AI-Powered Prescription OCR**: Take a photo of any prescription and let Google's Gemini-2.5-Flash model instantly extract the patient's name, medicine names, dosages, frequencies, and durations.
 * **Intelligent Schedule Generator**: The AI automatically maps complex frequencies (e.g., "3 times a day", "after meals") into concrete daily times (e.g., `08:00`, `13:00`, `20:00`).
-* **Interactive Web Dashboard**: Monitor daily medication timelines, log adherence (Mark as Taken/Missed), view historical prescriptions, and track metrics.
 * **Native Mobile App (Expo)**: Cross-platform iOS & Android mobile application with support for device camera capture, library picking, and automated local push notifications when it's time to take your pills.
 * **Secured JWT Authentication**: Individual patient accounts keeping all medical data protected.
 * **Resilient Offline Fallbacks**: Operating seamlessly in Mock Mode if API keys are unconfigured.
@@ -36,13 +33,13 @@ To explore the running Medtech AI system:
 
 ## 🏗️ System Architecture
 
-The following diagram illustrates how the frontend, mobile app, backend server, and Gemini AI coordinate to parse prescriptions and dispatch reminders.
+The following diagram illustrates how the mobile app, backend server, and Gemini AI coordinate to parse prescriptions and dispatch reminders.
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor User as Patient / Caregiver
-    participant Client as Web App / Mobile App
+    participant Client as Mobile App
     participant Server as Node.js Express Server
     participant DB as MongoDB Database
     participant Gemini as Google Gemini AI (2.5 Flash)
@@ -78,23 +75,12 @@ MED/
 │   ├── server.js           # Server startup script
 │   └── package.json        # Backend dependencies
 │
-├── frontend/               # React SPA client built with Vite
-│   ├── public/             # Static web assets
-│   ├── src/
-│   │   ├── components/     # UI Components (Scanner, Review, Timeline, Reminders)
-│   │   ├── App.jsx         # Main App entry point, routing, and dashboard stats
-│   │   ├── index.css       # Premium CSS design tokens & animations
-│   │   └── main.jsx        # React root registration
-│   └── package.json        # Frontend dependencies
-│
-├── mobile/                 # React Native App built with Expo
-│   ├── screens/            # Application Screens (Dashboard, Scanner, Review, History)
-│   ├── assets/             # Media and icon assets
-│   ├── App.js              # Native routing, Auth UI, and Push Notification scheduler
-│   ├── config.js           # Network configuration (Server IP/Port)
-│   └── package.json        # Expo & React Native dependencies
-│
-└── verify_setup.js         # Integrity check script to validate directory structures
+└── mobile/                 # React Native App built with Expo
+    ├── screens/            # Application Screens (Dashboard, Scanner, Review, History)
+    ├── assets/             # Media and icon assets
+    ├── App.js              # Native routing, Auth UI, and Push Notification scheduler
+    ├── config.js           # Network configuration (Server IP/Port)
+    └── package.json        # Expo & React Native dependencies
 ```
 
 ---
@@ -145,25 +131,7 @@ node verify_setup.js
 
 ---
 
-### Step 3: Start the Web Frontend
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd ../frontend
-   ```
-2. Install npm dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the web client:
-   ```bash
-   npm run dev
-   ```
-   Open your browser and navigate to **`http://localhost:5173`** (or the port specified by Vite in the console).
-
----
-
-### Step 4: Configure & Launch the Mobile App (Expo)
+### Step 3: Configure & Launch the Mobile App (Expo)
 
 1. Navigate to the mobile directory:
    ```bash
@@ -217,7 +185,6 @@ node verify_setup.js
 
 * **Backend**: Express REST API utilizing Mongoose to map MongoDB documents. Express static files serve prescription uploads.
 * **AI Engine**: Google's `@google/generative-ai` package using model `gemini-2.5-flash`. Structured prompting mandates JSON formatting.
-* **Web UI**: Vite React framework using modern, high-adherence custom glassmorphic CSS rules. Icons by `lucide-react`.
 * **Mobile App**: React Native environment configured through Expo. Integrates native camera APIs (`expo-camera`), file selection (`expo-image-picker`), and OS notification hooks (`expo-notifications`).
 
 ---
